@@ -34,7 +34,6 @@ we need to write 36 bytes beyond the buffer
 The `ret2win` function is at address `0x000105ec` so our final buffer is:
 36 bytes of padding + ret2win address
 
-```
 Stack:                       Payload:
 ╷             ╷              ┌─────────────┐ <- PADDING (36)
 │ buffer...   │              │ 20 20 20 20 │
@@ -43,4 +42,3 @@ Stack:                       Payload:
 ├─────────────┤<- fp         ├─────────────┤ <- ret2win
 │ pc          │              │ 0x000105d0  │
 ├─────────────┤              └─────────────┘
-```
