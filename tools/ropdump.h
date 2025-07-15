@@ -35,6 +35,7 @@ typedef enum	rd_addrtype
 	ADDR_GOT,
 	ADDR_HEAP,
 	ADDR_OTHER,
+	ADDR_STRING,
 	ADDR_FLAG = 1UL << 63,
 }	AddrType;
 
@@ -106,6 +107,9 @@ rop_dword(void);
 void
 rop_addr(AddrType type);
 
+void
+rop_string(const char *str);
+
 /* Addons functions ********************************************************* */
 
 void
@@ -121,7 +125,7 @@ rop_name(const char *name);
 #define ROPDUMP_IMPLEMENTATION
 #ifdef ROPDUMP_IMPLEMENTATION
 
-# define	RD_BLOCK_MIN	8
+# define	RD_BLOCK_MIN	64
 # define	RD_BLOCK_MAX	128
 
 # define	COLOR_PADDING	"\x1b[38;2;70;70;70m"
@@ -269,10 +273,17 @@ rop_dump(void)
 		{
 			if (i != 0)
 				rop_dump_separator(wsize);
-			if (wsize == 4)
-				printf("│ %s0x%-8lx\033[0m  │", addr_colors[block.addr_type], block.value);
+			if (block.addr_type == (ADDR_FLAG | ADDR_STRING))
+			{
+				printf("│ %.15s │", (char *)block.addr);
+			}
 			else
-				printf("│ %s0x%-16lx\033[0m  │", addr_colors[block.addr_type], block.value);
+			{
+				if (wsize == 4)
+					printf("│ %s0x%-8lx\033[0m  │", addr_colors[block.addr_type], block.value);
+				else
+					printf("│ %s0x%-16lx\033[0m      │", addr_colors[block.addr_type], block.value);
+			}
 			if (block.name)
 				printf(" <- [ %s ]", block.name);
 			if (block.gadget)
@@ -363,6 +374,14 @@ rop_addr(AddrType type)
 	uint32_t	wsize = rop_opt_get() & RD_WORD_32 ? 4 : 8;
 
 	rop_block(ADDR_FLAG | type, rop_read_addr(wsize));
+}
+
+void
+rop_string(const char *str)
+{
+	rop_ready();
+
+	rop_block(ADDR_FLAG | ADDR_STRING, (uint64_t)str);
 }
 
 /* ************************************************************************** */
