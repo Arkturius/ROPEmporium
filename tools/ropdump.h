@@ -124,7 +124,7 @@ rop_name(const char *name);
 # define	RD_BLOCK_MIN	8
 # define	RD_BLOCK_MAX	128
 
-# define	COLOR_PADDING	"\x1b[38;2;46;46;46m"
+# define	COLOR_PADDING	"\x1b[38;2;70;70;70m"
 
 const char	*addr_colors[ADDR_OTHER + 1] =
 {
@@ -275,6 +275,15 @@ rop_dump(void)
 				printf("│ %s0x%-16lx\033[0m  │", addr_colors[block.addr_type], block.value);
 			if (block.name)
 				printf(" <- [ %s ]", block.name);
+			if (block.gadget)
+			{
+				const char	**tmp = block.gadget;
+				while (*tmp)
+				{
+					printf("[ %s%s\033[0m ]", addr_colors[ADDR_GADGET], *tmp);
+					tmp++;
+				}
+			}
 			printf("\n");
 			rop.cursor += wsize;
 		}
@@ -382,7 +391,7 @@ rop_gadget(const char *first, ...)
 		rop_error("no last block", __func__);
 
 	const char	*instr;
-	uint32_t	count = 0;
+	uint32_t	count = 1;
 	va_list		instrs;
 	va_list		tmp;
 
@@ -399,8 +408,8 @@ rop_gadget(const char *first, ...)
 	if (!last->gadget)
 		rop_error("malloc failed", __func__);
 	memset(last->gadget, 0, count * sizeof(char *));
-
-	for (uint32_t i = 0; i < count; ++i)
+	last->gadget[0] = strdup(first);
+	for (uint32_t i = 1; i < count - 1; ++i)
 	{
 		instr = va_arg(instrs, const char *);
 		if (instr)
