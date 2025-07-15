@@ -15,8 +15,8 @@ The `pwnme` function prologue declares 32 bytes of stack.
 The read function is then used to get 56 characters from user input.
 ```asm
 000105b0 <pwnme + 0x40>:
-   105b0:	e24b3024 	sub	r3, fp, #36	; 0x24
-   105b4:	e3a02038 	mov	r2, #56	; 0x38
+   105b0:	e24b3024 	sub	r3, fp, #36
+   105b4:	e3a02038 	mov	r2, #56
    105b8:	e1a01003 	mov	r1, r3
    105bc:	e3a00000 	mov	r0, #0
    105c0:	ebffff80 	bl	103c8 <read@plt>
@@ -33,7 +33,14 @@ we need to write 36 bytes beyond the buffer
 ```
 The `ret2win` function is at address `0x000105ec` so our final buffer is:
 36 bytes of padding + ret2win address
-```asm
-000105ec <ret2win>:
-   105ec:	e92d4800 	push	{fp, lr}
+
+```
+Stack:                       Payload:
+╷             ╷              ┌─────────────┐ <- PADDING (36)
+│ buffer...   │              │ 20 20 20 20 │
+├─────────────┤<- sp + 32    │ ........... │
+│ fp          │              │ 20 20 20 20 │
+├─────────────┤<- fp         ├─────────────┤ <- ret2win
+│ pc          │              │ 0x000105d0  │
+├─────────────┤              └─────────────┘
 ```
