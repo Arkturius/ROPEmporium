@@ -5,7 +5,7 @@
 ## x86: (TODO)
 
 ## ARM:
-```arm
+```asm
 00010570 <pwnme>:
    10570:	e92d4800 	push	{fp, lr}
    10574:	e28db004 	add	fp, sp, #4
@@ -20,18 +20,20 @@
    105d0:	e24bd004 	sub	sp, fp, #4
    105d4:	e8bd8800 	pop	{fp, pc}
 ```
-The 'pwnme' function prologue declares 32 bytes of stack.
+The `pwnme` function prologue declares 32 bytes of stack.
 The read function is then used to get 56 characters from user input.
 
 We can deduce the address where those characters will be placed.
-fp - 36 is equivalent to sp. since the frame pointer is stored right under the 32 bytes buffer.
+`fp - 36` is equivalent to `sp`. since the frame pointer is stored right under the 32 bytes buffer.
 
-Since fp and pc are popped in this order at the end, if we want to overwrite pc,
+Since `fp` and `pc` are popped in this order at the end, if we want to overwrite `pc`,
 we need to write 36 bytes beyond the buffer
 
-The 'ret2win' function is at address 0x000105ec so our final buffer is:
+The `ret2win` function is at address `0x000105ec` so our final buffer is:
 36 bytes of padding + ret2win address
-```
+
+
+```asm
 000105ec <ret2win>:
    105ec:	e92d4800 	push	{fp, lr}
    ...
