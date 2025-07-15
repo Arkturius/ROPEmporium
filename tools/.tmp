@@ -1,0 +1,44 @@
+00010570 <pwnme>:
+   10570:	e92d4800 	push	{fp, lr}
+   10574:	e28db004 	add	fp, sp, #4
+   10578:	e24dd020 	sub	sp, sp, #32
+   1057c:	e24b3024 	sub	r3, fp, #36	; 0x24
+   10580:	e3a02020 	mov	r2, #32
+   10584:	e3a01000 	mov	r1, #0
+   10588:	e1a00003 	mov	r0, r3
+   1058c:	ebffff9f 	bl	10410 <memset@plt>
+   10590:	e59f0040 	ldr	r0, [pc, #64]	; 105d8 <pwnme+0x68>
+   10594:	ebffff8e 	bl	103d4 <puts@plt>
+   10598:	e59f003c 	ldr	r0, [pc, #60]	; 105dc <pwnme+0x6c>
+   1059c:	ebffff8c 	bl	103d4 <puts@plt>
+   105a0:	e59f0038 	ldr	r0, [pc, #56]	; 105e0 <pwnme+0x70>
+   105a4:	ebffff8a 	bl	103d4 <puts@plt>
+   105a8:	e59f0034 	ldr	r0, [pc, #52]	; 105e4 <pwnme+0x74>
+   105ac:	ebffff82 	bl	103bc <printf@plt>
+   105b0:	e24b3024 	sub	r3, fp, #36	; 0x24
+   105b4:	e3a02038 	mov	r2, #56	; 0x38
+   105b8:	e1a01003 	mov	r1, r3
+   105bc:	e3a00000 	mov	r0, #0
+   105c0:	ebffff80 	bl	103c8 <read@plt>
+   105c4:	e59f001c 	ldr	r0, [pc, #28]	; 105e8 <pwnme+0x78>
+   105c8:	ebffff81 	bl	103d4 <puts@plt>
+   105cc:	e1a00000 	nop			; (mov r0, r0)
+   105d0:	e24bd004 	sub	sp, fp, #4
+   105d4:	e8bd8800 	pop	{fp, pc}
+   105d8:	000106b0 	.word	0x000106b0
+   105dc:	00010710 	.word	0x00010710
+   105e0:	00010730 	.word	0x00010730
+   105e4:	00010790 	.word	0x00010790
+   105e8:	00010794 	.word	0x00010794
+
+000105ec <ret2win>:
+   105ec:	e92d4800 	push	{fp, lr}
+   105f0:	e28db004 	add	fp, sp, #4
+   105f4:	e59f0010 	ldr	r0, [pc, #16]	; 1060c <ret2win+0x20>
+   105f8:	ebffff75 	bl	103d4 <puts@plt>
+   105fc:	e59f000c 	ldr	r0, [pc, #12]	; 10610 <ret2win+0x24>
+   10600:	ebffff79 	bl	103ec <system@plt>
+   10604:	e1a00000 	nop			; (mov r0, r0)
+   10608:	e8bd8800 	pop	{fp, pc}
+   1060c:	000107a0 	.word	0x000107a0
+   10610:	000107c0 	.word	0x000107c0
