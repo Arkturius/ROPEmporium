@@ -33,7 +33,5 @@ At the end, `sp` is restored to its old value and then are popped `fp` and `pc`.
 Thus, to redirect the execution, we need to write an address 36 bytes after `sp`.
 
 We have `000105ec <ret2win>` so the final payload is:   
-- PADDING (36 bytes)
-- 0x105ec
 
 ![exploit](https://github.com/Arkturius/ROPEmporium/blob/markdown/.resources/ret2win_exploit.png)

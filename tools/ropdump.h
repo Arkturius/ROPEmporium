@@ -21,10 +21,11 @@
 
 typedef enum	rd_option
 {
-	RD_INIT		= 1 << 0,
-	RD_OPENED	= 1 << 1,
-	RD_WORD_32	= 1 << 2,
-	RD_WORD_64	= 1 << 3,
+	RD_INIT			= 1 << 0,
+	RD_OPENED		= 1 << 1,
+	RD_STACK_OPENED = 1 << 2,
+	RD_WORD_32		= 1 << 3,
+	RD_WORD_64		= 1 << 4,
 }	Option;
 
 typedef enum	rd_addrtype
@@ -60,8 +61,11 @@ typedef struct	chain_s
 	uint64_t	size;
 	uint64_t	capacity;
 	Block		*layout;
+	
+	uint64_t	s_size;
+	uint64_t	s_capacity;
+	Block		*s_layout;
 
-	uint8_t		*grid;
 	uint8_t		*payload;
 	uint8_t		*cursor;
 	uint64_t	len;
@@ -151,7 +155,7 @@ rop_begin(void)
 		exit(1);
 	}
 
-	rop.layout = malloc(RD_BLOCK_MIN * sizeof(Block));
+	rop.layout = (Block *) malloc(RD_BLOCK_MIN * sizeof(Block));
 	if (!rop.layout)
 	{
 		printf("ropdump: rop.layout malloc failed.\n");
@@ -166,6 +170,29 @@ rop_begin(void)
 	rop.cursor = rop.payload;
 
 	rop_opt_set(rop_opt_get() | RD_OPENED);
+}
+
+void
+rop_stack_begin(void)
+{
+	if (!(rop_opt_get() & RD_INIT))
+	{
+		printf("ropdump: RD_INIT not set.\n");
+		exit(1);
+	}
+
+	rop.s_layout = (Block *) malloc(RD_BLOCK_MIN * sizeof(Block));
+	if (!rop.s_layout)
+	{
+		printf("ropdump: rop.s_layout malloc failed.\n");
+		exit(1);
+	}
+
+	memset(rop.s_layout, 0, RD_BLOCK_MIN * sizeof(Block));
+	rop.s_size = 0;
+	rop.s_capacity = RD_BLOCK_MIN;
+	
+	rop_opt_set(rop_opt_get() | RD_STACK_OPENED);
 }
 
 void
@@ -184,11 +211,35 @@ rop_destroy(void)
 			void	*name = (void *)rop.layout[i].name;
 			if (name)
 				free(name);
+			rop.layout[i].name = NULL;
 		}
 		free(rop.layout);
 		free(rop.payload);
 		rop.layout = NULL;
 		rop.payload = NULL;
+	}
+}
+
+void
+rop_stack_end(void)
+{
+	rop_opt_set(rop_opt_get() & ~RD_STACK_OPENED);
+}
+
+__attribute__((destructor)) void
+rop_stack_destroy(void)
+{
+	if (rop.s_layout)
+	{
+		for (uint64_t i = 0; i < rop.s_size; ++i)
+		{
+			void	*name = (void *)rop.s_layout[i].name;
+			if (name)
+				free(name);
+			rop.s_layout[i].name = NULL;
+		}
+		free(rop.s_layout);
+		rop.s_layout = NULL;
 	}
 }
 
@@ -209,6 +260,13 @@ rop_ready(void)
 {
 	if (!(rop_opt_get() & (RD_INIT | RD_OPENED)))
 		rop_error("ropchain not in ready state", __func__);
+}
+
+void
+rop_stack_ready(void)
+{
+	if (!(rop_opt_get() & (RD_INIT | RD_STACK_OPENED)))
+		rop_error("stack not in ready state", __func__);
 }
 
 inline Option
@@ -257,10 +315,14 @@ rop_dump(void)
 	uint32_t	wsize = rop_opt_get() & RD_WORD_32 ? 4 : 8;
 
 	rop.cursor = rop.payload;
+	
+	printf("\033[13C");
+
 	if (wsize == 4)
 		printf("┌─────────────┐\n");
 	else
 		printf("┌─────────────────────────┐\n");
+	printf("\033[13C");
 	for (uint64_t i = 0; i < rop.size; ++i)
 	{
 		Block		block = rop.layout[i];
@@ -272,7 +334,10 @@ rop_dump(void)
 		if (block.addr_type & ADDR_FLAG)
 		{
 			if (i != 0)
+			{
 				rop_dump_separator(wsize);
+				printf("\033[13C");
+			}
 			if (block.addr_type == (ADDR_FLAG | ADDR_STRING))
 			{
 				printf("│ %.15s │", (char *)block.addr);
@@ -285,7 +350,7 @@ rop_dump(void)
 					printf("│ %s0x%-16lx\033[0m      │", addr_colors[block.addr_type], block.value);
 			}
 			if (block.name)
-				printf(" <- [ %s ]", block.name);
+				printf(" <- %s", block.name);
 			if (block.gadget)
 			{
 				const char	**tmp = block.gadget;
@@ -296,19 +361,29 @@ rop_dump(void)
 				}
 			}
 			printf("\n");
+			printf("\033[13C");
 			rop.cursor += wsize;
 		}
 		else
 		{
 			if (i && (rop.layout[i - 1].addr_type & ADDR_FLAG))
+			{
 				rop_dump_separator(wsize);
+				printf("\033[13C");
+			}
 			for (uint32_t j = 0; j < bsize; ++j)
 			{
 				if (j % wsize == 0)
 					printf("│ %s", block.size > wsize ? COLOR_PADDING: "");
 				printf("%s%02x", j % wsize ? " " : "", *rop.cursor++);
 				if (j % wsize == wsize - 1)
-					printf("\033[0m │\n");
+				{
+					printf("\033[0m │");
+					if (j == wsize - 1 && block.name)
+						printf(" <- %s", block.name);
+					printf("\n");
+					printf("\033[13C");
+				}
 			}
 		}
 	}
