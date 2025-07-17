@@ -42,11 +42,18 @@ The above disassembler output tells us there is a 32 bytes buffer.
 It is overflowed by the read call, asking for 56 bytes of user input.
 On the stack, right below the local buffer, are stored `fp` and `lr`.
 So, by writing 36 bytes beyond the buffer, we can overwrite the value that will be popped as `pc`
-```diff
-|           Stack:         Payload:
-|         
-| fp - 36: |buffer....|   |0x20202020|   padding (36 bytes)
-|          |..........|   |..........|
-|  fp - 4: |old_fp....|   |0x20202020|
-+      fp: |lr........|   |0x000105ec|   ret2win address
+```bash
+┌─────────────┐
+│ 20 20 20 20 │ <- padding (36 bytes)
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+│ 20 20 20 20 │
+├─────────────┤
+│ 0x105ec     │ <- ret2win address
+└─────────────┘
 ```
