@@ -1,6 +1,22 @@
 # ret2win
 
-## x86_64: (TODO)
+This is the first of the 8 challenges, it's also the simplest.
+All binaries have the same vulnerability which is a buffer overflow in the `pwnme` function.
+
+For this one, we can find the ret2win function by listing symbols of the file with nm.
+```
+$ nm ret2win
+...
+0000000000400756 t ret2win  # x86_64
+...
+0804862c t ret2win          # x86
+...
+000105ec t ret2win          # ARMv5
+...
+```
+The objective become clear: return from `pwnme` into `ret2win`.
+
+## x86_64: (`TODO)
 
 ## x86: (TODO)
 
@@ -10,28 +26,27 @@
    10570:	e92d4800 	push	{fp, lr}
    10574:	e28db004 	add	fp, sp, #4
    10578:	e24dd020 	sub	sp, sp, #32
-```
-The `pwnme` function prologue declares 32 bytes of stack.   
-`fp = old_sp + 4, sp = old_sp - 32` so `sp = fp - 36`.
-```asm
+...
 000105b0 <pwnme + 0x40>:
    105b0:	e24b3024 	sub	r3, fp, #36
    105b4:	e3a02038 	mov	r2, #56
    105b8:	e1a01003 	mov	r1, r3
    105bc:	e3a00000 	mov	r0, #0
    105c0:	ebffff80 	bl	103c8 <read@plt>
-```
-Then, the read function is called like this:   
-`read(0, fp - 36, 56)`  
-There is a 24 byte buffer overflow that allows us to overwrite `pc`
-```asm
+...
 000105d0 <pwnme + 0x60>:
    105d0:	e24bd004 	sub	sp, fp, #4
    105d4:	e8bd8800 	pop	{fp, pc}
 ```
-At the end, `sp` is restored to its old value and then are popped `fp` and `pc`.   
-Thus, to redirect the execution, we need to write an address 36 bytes after `sp`.
-
-We have `000105ec <ret2win>` so the final payload is:   
-
-![exploit](https://github.com/Arkturius/ROPEmporium/blob/markdown/.resources/ret2win_exploit.png)
+The above disassembler output tells us there is a 32 bytes buffer.   
+It is overflowed by the read call, asking for 56 bytes of user input.
+On the stack, right below the local buffer, are stored `fp` and `lr`.
+So, by writing 36 bytes beyond the buffer, we can overwrite the value that will be popped as `pc`
+```
+           Stack:         Payload:
+         
+ fp - 36: |buffer....|   |0x20202020|   padding (36 bytes)
+          |..........|   |..........|
+  fp - 4: |old_fp....|   |0x20202020|
+      fp: |lr........|   |0x000105ec|   ret2win address
+```
