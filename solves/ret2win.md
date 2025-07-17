@@ -43,17 +43,17 @@ It is overflowed by the read call, asking for 56 bytes of user input.
 On the stack, right below the local buffer, are stored `fp` and `lr`.
 So, by writing 36 bytes beyond the buffer, we can overwrite the value that will be popped as `pc`
 ```bash
-┌─────────────┐
-│ 20 20 20 20 │ <- padding (36 bytes)
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-│ 20 20 20 20 │
-├─────────────┤
-│ 0x105ec     │ <- ret2win address
-└─────────────┘
+┌─────────────┐  ┌─────────────┐
+│             │  │ 20 20 20 20 │ <- padding (36 bytes)
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+├─────────────┤  │ 20 20 20 20 │
+│ fp          │  │ 20 20 20 20 │
+├─────────────┤  ├─────────────┤
+│ lr          │  │ 0x105ec     │ <- ret2win address
+└─────────────┘  └─────────────┘
 ```
