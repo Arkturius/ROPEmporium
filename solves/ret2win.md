@@ -4,7 +4,7 @@ This is the first of the 8 challenges, it's also the simplest.
 All binaries have the same vulnerability which is a buffer overflow in the `pwnme` function.
 
 For this one, we can find the ret2win function by listing symbols of the file with nm.
-```
+```bash
 $ nm ret2win
 ...
 0000000000400756 t ret2win  # x86_64
@@ -18,7 +18,7 @@ The objective become clear: return from `pwnme` into `ret2win`.
 For all architectures, the buffer overflow is a read of 56 bytes into a 32 bytes buffer.
 
 ## x86_64:
-```
+```asm
 0000000000400733 <pwnme + 0x4b>:
   400733:	48 8d 45 e0      lea    rax,[rbp-0x20]
   400737:	ba 38 00 00 00   mov    edx,0x38
@@ -49,7 +49,7 @@ instruction before the ret2win address.
 └─────────────────────────┘  └─────────────────────────┘
 ```
 ## x86:
-```
+```asm
 08048609 <pwnme + 0x5c>:
  8048609:	6a 38            push   0x38
  804860b:	8d 45 d8         lea    eax,[ebp-0x28]
