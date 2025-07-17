@@ -38,10 +38,11 @@ The objective become clear: return from `pwnme` into `ret2win`.
    105d0:	e24bd004 	sub	sp, fp, #4
    105d4:	e8bd8800 	pop	{fp, pc}
 ```
-The above disassembler output tells us there is a 32 bytes buffer.   
-It is overflowed by the read call, asking for 56 bytes of user input.
-On the stack, right below the local buffer, are stored `fp` and `lr`.
-So, by writing 36 bytes beyond the buffer, we can overwrite the value that will be popped as `pc`
+As promised, there is a buffer overflow.
+In ARMv5, the return address is stored in the `lr` register.
+So in order to overwrite it, we need 36 bytes of padding.   
+Original stack = `32 bytes buffer + fp + lr`   
+Payload        = `36 bytes padding + ret2win address`
 ```bash
 ┌─────────────┐  ┌─────────────┐
 │             │  │ 20 20 20 20 │ <- padding (36 bytes)
