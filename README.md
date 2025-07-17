@@ -3,8 +3,9 @@
 This repo contains my solutions for the 8 challenges of [ROPEmporium](https://ropemporium.com/).   
 As said on the website:
 ```
-The ROP Emporium challenges attempt to remove as much reliance on reverse-engineering and bug hunting   
-as possible so you can focus on building your ROP chains. Each binary has the same vulnerability:   
+The ROP Emporium challenges attempt to remove as much reliance on reverse-engineering   
+and bug hunting as possible so you can focus on building your ROP chains.   
+Each binary has the same vulnerability:   
 a user-provided string is copied into a stack-based buffer with no bounds checking,   
 allowing a function’s saved return address to be overwritten.
 ```   
