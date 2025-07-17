@@ -17,7 +17,7 @@ $ nm ret2win
 The objective become clear: return from `pwnme` into `ret2win`.
 For all architectures, the buffer overflow is a read of 56 bytes into a 32 bytes buffer.
 
-## x86_64: (TODO)
+## x86_64:
 ```
 0000000000400733 <pwnme + 0x4b>:
   400733:	48 8d 45 e0      lea    rax,[rbp-0x20]
@@ -36,17 +36,17 @@ However, this is a x64 challenge so the stack pointer has to be 16-byte aligned 
 from functions. To avoid a segfault on an aligned memory move, we can stick the address of a `ret`
 instruction before the ret2win address.
 ```
-┌─────────────────────────┐┌─────────────────────────┐
-│ buffer                  ││ 20 20 20 20 20 20 20 20 │ <- padding (40 bytes)
-│                         ││ 20 20 20 20 20 20 20 20 │
-│                         ││ 20 20 20 20 20 20 20 20 │
-├─────────────────────────┤│ 20 20 20 20 20 20 20 20 │
-│ old_rbp                 ││ 20 20 20 20 20 20 20 20 │
-├─────────────────────────┤├─────────────────────────┤
-│ ret                     ││ 0x400755                │ <- ret
-├─────────────────────────┤├─────────────────────────┤
-│ ...                     ││ 0x400756                │ <- ret2win address
-└─────────────────────────┘└─────────────────────────┘
+┌─────────────────────────┐  ┌─────────────────────────┐
+│ buffer                  │  │ 20 20 20 20 20 20 20 20 │ <- padding (40 bytes)
+│                         │  │ 20 20 20 20 20 20 20 20 │
+│                         │  │ 20 20 20 20 20 20 20 20 │
+├─────────────────────────┤  │ 20 20 20 20 20 20 20 20 │
+│ old_rbp                 │  │ 20 20 20 20 20 20 20 20 │
+├─────────────────────────┤  ├─────────────────────────┤
+│ ret                     │  │ 0x400755                │ <- ret
+├─────────────────────────┤  ├─────────────────────────┤
+│ ...                     │  │ 0x400756                │ <- ret2win address
+└─────────────────────────┘  └─────────────────────────┘
 ```
 ## x86:
 ```
@@ -65,21 +65,21 @@ Since the `leave` instruction is cleaning the stack frame for this function,
 and the read call is writing at `[ebp - 0x28]`, we can deduce that the return address will be
 at `buffer + 0x28 + 0x4 = buffer + 44`. Thus we need 44 bytes of padding, then the ret2win address
 ```
-┌─────────────┐ ┌─────────────┐
-│ buffer      │ │ 20 20 20 20 │ <- padding (44 bytes)
-│             │ │ 20 20 20 20 │
-│             │ │ 20 20 20 20 │
-│             │ │ 20 20 20 20 │
-│             │ │ 20 20 20 20 │
-├─────────────┤ │ 20 20 20 20 │
-│ ...         │ │ 20 20 20 20 │
-├─────────────┤ │ 20 20 20 20 │
-│ ...         │ │ 20 20 20 20 │
-├─────────────┤ │ 20 20 20 20 │
-│ old rbp     │ │ 20 20 20 20 │
-├─────────────┤ ├─────────────┤
-│ ret         │ │ 0x804862c   │ <- ret2win address
-└─────────────┘ └─────────────┘
+┌─────────────┐  ┌─────────────┐
+│ buffer      │  │ 20 20 20 20 │ <- padding (44 bytes)
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+│             │  │ 20 20 20 20 │
+├─────────────┤  │ 20 20 20 20 │
+│ ...         │  │ 20 20 20 20 │
+├─────────────┤  │ 20 20 20 20 │
+│ ...         │  │ 20 20 20 20 │
+├─────────────┤  │ 20 20 20 20 │
+│ old rbp     │  │ 20 20 20 20 │
+├─────────────┤  ├─────────────┤
+│ ret         │  │ 0x804862c   │ <- ret2win address
+└─────────────┘  └─────────────┘
 ```
 
 ## ARM:
