@@ -316,13 +316,10 @@ rop_dump(void)
 
 	rop.cursor = rop.payload;
 	
-	printf("\033[13C");
-
 	if (wsize == 4)
 		printf("┌─────────────┐\n");
 	else
 		printf("┌─────────────────────────┐\n");
-	printf("\033[13C");
 	for (uint64_t i = 0; i < rop.size; ++i)
 	{
 		Block		block = rop.layout[i];
@@ -336,7 +333,6 @@ rop_dump(void)
 			if (i != 0)
 			{
 				rop_dump_separator(wsize);
-				printf("\033[13C");
 			}
 			if (block.addr_type == (ADDR_FLAG | ADDR_STRING))
 			{
@@ -361,7 +357,6 @@ rop_dump(void)
 				}
 			}
 			printf("\n");
-			printf("\033[13C");
 			rop.cursor += wsize;
 		}
 		else
@@ -369,7 +364,6 @@ rop_dump(void)
 			if (i && (rop.layout[i - 1].addr_type & ADDR_FLAG))
 			{
 				rop_dump_separator(wsize);
-				printf("\033[13C");
 			}
 			for (uint32_t j = 0; j < bsize; ++j)
 			{
@@ -382,7 +376,6 @@ rop_dump(void)
 					if (j == wsize - 1 && block.name)
 						printf(" <- %s", block.name);
 					printf("\n");
-					printf("\033[13C");
 				}
 			}
 		}
