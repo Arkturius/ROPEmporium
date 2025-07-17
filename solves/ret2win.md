@@ -21,6 +21,7 @@ The objective become clear: return from `pwnme` into `ret2win`.
 ## x86: (TODO)
 
 ## ARM:
+As promised, there is a straightforward buffer overflow. 56 bytes into a 32 bytes buffer.
 ```asm
 00010570 <pwnme>:
    10570:	e92d4800 	push	{fp, lr}
@@ -38,14 +39,11 @@ The objective become clear: return from `pwnme` into `ret2win`.
    105d0:	e24bd004 	sub	sp, fp, #4
    105d4:	e8bd8800 	pop	{fp, pc}
 ```
-As promised, there is a buffer overflow.
 In ARMv5, the return address is stored in the `lr` register.
-So in order to overwrite it, we need 36 bytes of padding.   
-Original stack = `32 bytes buffer + fp + lr`   
-Payload        = `36 bytes padding + ret2win address`
+So in order to overwrite it, we need 36 bytes of padding, then our ret2win address.   
 ```bash
 ┌─────────────┐  ┌─────────────┐
-│             │  │ 20 20 20 20 │ <- padding (36 bytes)
+│ buffer      │  │ 20 20 20 20 │ <- padding (36 bytes)
 │             │  │ 20 20 20 20 │
 │             │  │ 20 20 20 20 │
 │             │  │ 20 20 20 20 │
