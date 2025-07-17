@@ -39,7 +39,7 @@ As promised, there is a straightforward buffer overflow. 56 bytes into a 32 byte
    105d0:	e24bd004 	sub	sp, fp, #4
    105d4:	e8bd8800 	pop	{fp, pc}
 ```
-In ARMv5, the return address is stored in the `lr` register.
+In ARMv5, the return address is the `lr` register.   
 So in order to overwrite it, we need 36 bytes of padding, then our ret2win address.   
 ```bash
 ┌─────────────┐  ┌─────────────┐
