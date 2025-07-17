@@ -9,10 +9,10 @@ So my walkthroughs will focus on ROP chain building rather than re-explaining th
 
 Current solving status:
 ```
-    x86: Solved all.
- x86_64: Solved all.
-  ARMv5: Solved all.
-   MIPS: WIP...
+    x86: Solved all ✅
+ x86_64: Solved all ✅
+  ARMv5: Solved all ✅
+   MIPS: WIP...     ⚙
 ```
 ## 0 - ret2win
 Overwrite a return addres from the vulnerable function.
