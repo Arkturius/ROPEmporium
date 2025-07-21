@@ -28,8 +28,22 @@ Like in the first challenge, we would be striked by an alignment error for jumpi
 so a `ret` address will be used to re-align the stack to 16 bytes.
 
 ```
-
+┌─────────────────────────┐
+│ 0x40093f                │ <- ret
+├─────────────────────────┤
+│ 0x40093c                │ <- pop rdi; pop rsi; pop rdx; ret
+├─────────────────────────┤
+│ 0xdeadbeefdeadbeef      │ <- rdi
+├─────────────────────────┤
+│ 0xcafebabecafebabe      │ <- rsi
+├─────────────────────────┤
+│ 0xd00df00dd00df00d      │ <- rdx
+├─────────────────────────┤
+│ 0x400720                │ <- callme_one
+├─────────────────────────┤
+│ ...                     │ <- pop rdi; pop rsi; pop rdx; ret (for callme_two)
 ```
+The 5 words pattern from the gadget to the call is then repeated 2 times, with callme_two and callme_three instead.
 
 ## x86:
 
