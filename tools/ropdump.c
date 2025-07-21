@@ -108,6 +108,27 @@ ARCH_CALL(armv5, split)(void)
 }
 
 void
+ARCH_CALL(rainfall, 0)(void)
+{
+	rop_opt_set(RD_INIT | RD_WORD_32);
+	rop_begin();
+		rop_padding(4);
+		rop_addr(ADDR_CODE);
+		rop_name("old ebp");
+		rop_addr(ADDR_CODE);
+		rop_name("return address");
+		rop_addr(ADDR_CODE);
+		rop_name("argc");
+		rop_addr(ADDR_CODE);
+		rop_name("argv");
+		rop_addr(ADDR_CODE);
+		rop_name("envp");
+	rop_end();
+	rop_dump();
+	rop_destroy();
+}
+
+void
 rop_stack(void)
 {
 	rop_opt_set(RD_INIT | RD_WORD_32);
@@ -125,7 +146,8 @@ int main(void)
 {
 //	armv5_ret2win();
 //	x86_split();
-	armv5_split();
+//	armv5_split();
+	rainfall_0();
 }
 
 // Stack:                       Payload:

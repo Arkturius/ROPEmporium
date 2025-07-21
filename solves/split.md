@@ -28,7 +28,7 @@ The goal is to replace this argument with our usefulString.
   4007c4:	c3               ret    
 ```
 The 0x5f opcode is the one for `pop rdi`, the 0x41 byte is used to extend it
-to the second set of registers thus displaying a `pop r15`. We can use 0x4007e3 as a
+to the second set of registers thus making a `pop r15`. We can use 0x4007e3 as a
 `pop rdi` gadget.   
 With all of this, we can craft our exploit and call `system("/bin/cat flag.txt")`.   
 ```
