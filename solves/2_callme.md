@@ -48,7 +48,7 @@ so a `ret` address will be used to re-align the stack to 16 bytes.
 The 5 words pattern from the gadget to the call is then repeated 2 times, with callme_two and callme_three instead.
 
 ## x86:
-```
+```asm
 080484f0 <callme_one@plt>:
 
 08048550 <callme_two@plt>:
