@@ -64,7 +64,6 @@ The 5 words pattern from the gadget to the call is then repeated 2 times, with c
 For this one, we have to switch to the x86 calling convention, but the execution stays the same.   
 I took a 3-long `pop` chain as a gadget to cleanup the stack after my calls, so i ordered them like this:   
 For each one of the 3 functions, i have its address followed by the gadget then the 3 arguments.
-This allows me to cleanup the 3 arguments used for this call, by jumping out directly to the gadget.
 ```
 ┌─────────────┐
 │ 0x080484f0  │
