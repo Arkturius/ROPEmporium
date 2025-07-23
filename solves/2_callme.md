@@ -90,7 +90,7 @@ As for x86_64, we just have to repeat 3 times this 5 words pattern.
 00010870 <usefulGadgets>:
    10870:	e8bdc007 	pop	{r0, r1, r2, lr, pc}
 ```
-With the help of the provided gadget, we are able to load 3 arguments into r0 to r2,
+With the help of the provided gadget, we are able to load 3 arguments into `r0` to `r2`,
 and redirect the execution with lr and pc.   
 First, we pop the arguments for our first call, setting `lr` to come back and pop after callme_one,
 and `pc` to the correct PLT entry. Then its just repetition, callme_one will jump into the pop for
