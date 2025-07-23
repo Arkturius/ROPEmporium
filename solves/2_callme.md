@@ -66,9 +66,9 @@ I took a 3-long `pop` chain as a gadget to cleanup the stack after my calls, so 
 For each one of the 3 functions, i have its address followed by the gadget then the 3 arguments.
 ```
 ┌─────────────┐
-│ 0x080484f0  │
+│ 0x080484f0  │ <- callme_one
 ├─────────────┤
-│ 0x080487a0  │
+│ 0x080487a0  │ <- pop esi; pop edi; pop ebp; ret
 ├─────────────┤
 │ 0xdeadbeef  │
 ├─────────────┤
@@ -76,7 +76,7 @@ For each one of the 3 functions, i have its address followed by the gadget then 
 ├─────────────┤
 │ 0xd00df00d  │
 ├─────────────┤
-│ ...         │
+│ ...         │ <- callme_two
 ```
 As for x86_64, we just have to repeat 3 times this 5 words pattern.
 ## ARMv5:
@@ -97,7 +97,7 @@ and `pc` to the correct PLT entry. Then its just repetition, callme_one will jum
 callme_two args, and so on...
 ```
 ┌─────────────┐
-│ 0x00010870  │
+│ 0x00010870  │ <- pop {r0, r1, r2, lr, pc}
 ├─────────────┤
 │ 0xdeadbeef  │
 ├─────────────┤
@@ -105,9 +105,9 @@ callme_two args, and so on...
 ├─────────────┤
 │ 0xd00df00d  │
 ├─────────────┤
-│ 0x00010870  │
+│ 0x00010870  │ <- pop {r0, r1, r2, lr, pc}
 ├─────────────┤
-│ 0x00010618  │
+│ 0x00010618  │ <- callme_one
 ├─────────────┤
 │ ...         │
 ```
