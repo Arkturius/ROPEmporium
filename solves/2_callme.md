@@ -18,10 +18,10 @@ using `0xdeadbeef`, `0xcafebabe` and `0xd00df00d` as 1st, 2nd and 3rd arguments.
 00000000004006f0 <callme_three@plt>:
 
 000000000040093c <usefulGadgets>:
-  40093c:	5f                   	pop    rdi
-  40093d:	5e                   	pop    rsi
-  40093e:	5a                   	pop    rdx
-  40093f:	c3                   	ret    
+  40093c:	5f               pop    rdi
+  40093d:	5e               pop    rsi
+  40093e:	5a               pop    rdx
+  40093f:	c3               ret    
 ```
 With the 3 PLT entries and the provided gadget to pop the 3 first arguments,
 the final exploit is pretty straightforward. We'll build 3 function calls chaining the gadget address,
@@ -48,5 +48,35 @@ so a `ret` address will be used to re-align the stack to 16 bytes.
 The 5 words pattern from the gadget to the call is then repeated 2 times, with callme_two and callme_three instead.
 
 ## x86:
+```asm
+080484f0 <callme_one@plt>:
 
+08048550 <callme_two@plt>:
+
+080484e0 <callme_three@plt>:
+
+080487a0 <__libc_csu_init + 0x59>:
+ 80487f9:	5e               pop    esi
+ 80487fa:	5f               pop    edi
+ 80487fb:	5d               pop    ebp
+ 80487fc:	c3               ret    
+```
+For this one, we have to switch to the x86 calling convention, but the execution stays the same.   
+I took a 3-long `pop` chain as a gadget to cleanup the stack after my calls, so i ordered them like this:   
+For each one of the 3 functions, i have its address followed by the gadget then the 3 arguments.
+```
+┌─────────────┐
+│ 0x080484f0  │
+├─────────────┤
+│ 0x080487a0  │
+├─────────────┤
+│ 0xdeadbeef  │
+├─────────────┤
+│ 0xcafebabe  │
+├─────────────┤
+│ 0xd00df00d  │
+├─────────────┤
+│ ...         │
+```
+As for x86_64, we just have to repeat 3 times this 5 words pattern.
 ## ARMv5:

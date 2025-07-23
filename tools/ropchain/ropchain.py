@@ -17,5 +17,5 @@ def raw(stream):
 def echo(byte_stream):
     stdout.buffer.write(byte_stream)
     
-def pad(n, c = b" "):
+def pad(n, c = b"\x90"):
     return c * n
